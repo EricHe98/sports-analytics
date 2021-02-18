@@ -1,0 +1,37 @@
+version: 2 
+
+models:
+  - name: lagged_features
+    description: Lagged cumulative goal differential
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - game_id
+            - team
+      - dbt_utils.expression_is_true: # unit test on Amiens game 2
+          expression: "cumulative_goal_differential = -2"
+          condition: "date = '2017-08-12' AND team = 'Amiens'" 
+      - dbt_utils.expression_is_true:
+          expression: "lagged_cumulative_goal_differential = -2"
+          condition: "date = '2017-08-19' AND team = 'Amiens'"
+
+sources:
+  - name: sports
+    tables:
+      - name: sports18 
+        columns:
+          - name: game_id 
+            tests: 
+              - unique 
+              - not_null
+      - name: sports18_melted
+        tests: 
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - game_id
+                - team
+        columns:
+          - name: game_id
+          - name: team
+      - name: teams_pagerank_16
+      - name: teams_pagerank_17
